@@ -1,6 +1,6 @@
 import requests
 
-SERVER_URL = "https://026cdf88-5881-4b9c-87cb-234163d867ef-00-b5cj60sobzr6.pike.replit.dev:8080/"
+SERVER_URL = "/"
 
 
 print (" Relay Server Sender")
