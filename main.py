@@ -1,31 +1,28 @@
-from fastapi import FastAPI, WebSocket
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-app = FastAPI()
+app = Flask(__name__)
+CORS(app)  # Allow cross-origin requests
 
-# Allow all CORS (for testing purpose)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+messages = []
 
-clients = []
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    clients.append(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            for client in clients:
-                if client != websocket:
-                    await client.send_text(data)
-    except:
-        clients.remove(websocket)
+@app.route('/send', methods=['POST'])
+def send_message():
+    data = request.json
+    messages.append(data)
+    return jsonify({"status": "Message received"}), 200
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=10000)
+
+@app.route('/receive', methods=['GET'])
+def get_messages():
+    return jsonify(messages), 200
+
+
+@app.route('/clear', methods=['POST'])
+def clear_messages():
+    messages.clear()
+    return jsonify({"status": "Messages cleared"}), 200
+
+
+app.run(host='0.0.0.0', port=8080)
